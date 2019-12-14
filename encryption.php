@@ -5,12 +5,9 @@ Plugin URI: https://github.com/ClassicPress-research/encryption-functions/
 Description: Encryption and decryption features for regulatory compliance.
 Author: Raymund John Ang
 Author URI: https://open-nis.org/
-Text Domain: open-nis
+Text Domain: classicpress-encryption
 Version: 0.9
 */
-
-// PASS_PHRASE will be used to derive the encryption and HMAC keys.
-define( 'PASS_PHRASE', 'ABC123' );
 
 /**
  * Encrypt data using AES-CBC-HMAC
@@ -18,22 +15,31 @@ define( 'PASS_PHRASE', 'ABC123' );
  * @param string $plaintext - Plaintext to be encrypted
  */
 
-function encrypt( $plaintext )
+function cp_encrypt( $plaintext )
 {
+
+    // Exit if CP_PASS_PHRASE is not defined
+    if ( ! defined( 'CP_PASS_PHRASE' ) ) {
+        exit ('Constant CP_PASS_PHRASE is not defined in wp-config.php.');
+    }
 
     // Cipher method to CBC with 256-bit key
     $cipher = 'aes-256-cbc';
+    // Salt for encryption key
+    $salt_key = random_bytes(16);
     // Derive encryption key
-    $key = hash( 'sha256', PASS_PHRASE . md5(PASS_PHRASE) );
+    $key = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_key, 1000, 20 );
+    // Salt for HMAC key
+    $salt_hmac = random_bytes(16);
     // Derive HMAC key
-    $key_hmac = hash( 'sha256', md5(PASS_PHRASE) );
+    $key_hmac = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_hmac, 1000, 20 );
     // Initialization vector
     $iv = random_bytes(16);
 
     $ciphertext = openssl_encrypt( $plaintext, $cipher, $key, 0, $iv );
     $hash = hash_hmac( 'sha256', $ciphertext, $key_hmac );
 
-    return base64_encode( $ciphertext . '::' . $hash . '::' . $iv );
+    return base64_encode( $ciphertext ) . '::' . base64_encode( $hash ) . '::' . base64_encode( $iv ) . '::' . base64_encode( $salt_key ) . '::' . base64_encode( $salt_hmac );
 
 }
 
@@ -43,28 +49,40 @@ function encrypt( $plaintext )
  * @param string $encypted - base64_encoded ciphertext, hash and iv
  */
 
-function decrypt( $encrypted )
+function cp_decrypt( $encrypted )
 {
 
+    // Exit if CP_PASS_PHRASE is not defined
+    if ( ! defined( 'CP_PASS_PHRASE' ) ) {
+        exit ('Constant CP_PASS_PHRASE is not defined in wp-config.php.');
+    }
+
     // Return empty if $encrypted is not set or empty.
-    if ( ! isset($encrypted) || empty($encrypted) ) { return ''; }
+    if ( ! isset( $encrypted ) || empty( $encrypted ) ) { return ''; }
 	
     // Cipher method to CBC with 256-bit key
     $cipher = 'aes-256-cbc';
-    // Derive encryption key
-    $key = hash( 'sha256', PASS_PHRASE . md5(PASS_PHRASE) );
-    // Derive HMAC key
-    $key_hmac = hash( 'sha256', md5(PASS_PHRASE) );
 
-    list( $ciphertext, $hash, $iv ) = explode( '::', base64_decode($encrypted) );
+    list( $ciphertext, $hash, $iv, $salt_key, $salt_hmac ) = explode( '::', $encrypted );
+    $ciphertext = base64_decode( $ciphertext );
+    $hash = base64_decode( $hash );
+    $iv = base64_decode( $iv );
+    $salt_key = base64_decode( $salt_key );
+    $salt_hmac = base64_decode( $salt_hmac );
+
+    // Derive encryption key
+    $key = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_key, 1000, 20 );
+    // Derive HMAC key
+    $key_hmac = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_hmac, 1000, 20 );
+    
     $digest = hash_hmac( 'sha256', $ciphertext, $key_hmac );
 
     // HMAC authentication
-    if ( hash_equals($hash, $digest) ) {
+    if ( hash_equals( $hash, $digest ) ) {
         return openssl_decrypt( $ciphertext, $cipher, $key, 0, $iv );
         }
     else {
-        return 'Please verify authenticity of ciphertext.';
+        exit ('Please verify authenticity of ciphertext.');
     }
 
 }
