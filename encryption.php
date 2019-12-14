@@ -9,6 +9,16 @@ Text Domain: classicpress-encryption
 Version: 0.9
 */
 
+/** Show warning if CP_PASS_PHRASE is not defined */
+add_filter( 'the_content', 'check_pass_phrase' );
+function check_pass_phrase() {
+
+    if ( ! defined( 'CP_PASS_PHRASE' ) ) {
+        exit ('<strong>Warning: </strong>Constant CP_PASS_PHRASE is not defined in wp-config.php.');
+    }
+
+}
+
 /**
  * Encrypt data using AES-CBC-HMAC
  *
@@ -17,11 +27,6 @@ Version: 0.9
 
 function cp_encrypt( $plaintext )
 {
-
-    // Exit if CP_PASS_PHRASE is not defined
-    if ( ! defined( 'CP_PASS_PHRASE' ) ) {
-        exit ('Constant CP_PASS_PHRASE is not defined in wp-config.php.');
-    }
 
     // Cipher method to CBC with 256-bit key
     $cipher = 'aes-256-cbc';
@@ -51,11 +56,6 @@ function cp_encrypt( $plaintext )
 
 function cp_decrypt( $encrypted )
 {
-
-    // Exit if CP_PASS_PHRASE is not defined
-    if ( ! defined( 'CP_PASS_PHRASE' ) ) {
-        exit ('Constant CP_PASS_PHRASE is not defined in wp-config.php.');
-    }
 
     // Return empty if $encrypted is not set or empty.
     if ( ! isset( $encrypted ) || empty( $encrypted ) ) { return ''; }
