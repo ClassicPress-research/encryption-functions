@@ -20,13 +20,48 @@ function check_pass_phrase() {
 }
 
 /**
- * Encrypt data using AES-CBC-HMAC
+ * Encrypt Data
  *
  * @param string $plaintext - Plaintext to be encrypted
  */
 
-function cp_encrypt( $plaintext )
+function cp_encrypt( $plaintext ) {
+
+    // Default encryption function
+    return cp_encrypt_v1( $plaintext );
+
+}
+
+/**
+ * Decrypt Data
+ *
+ * @param string $encrypted - Data to be decrypted
+ */
+
+function cp_decrypt( $encrypted ) {
+
+    $version = explode( '::', $encrypted )[0];
+
+    // Version-based decryption
+    switch ( $version ) {
+        case 'v1':
+            return cp_decrypt_v1( $encrypted );
+            break;
+    }
+
+}
+
+/**
+ * Version 1 - Encrypt data using AES-CBC-HMAC
+ *
+ * @param string $plaintext - Plaintext to be encrypted
+ */
+
+function cp_encrypt_v1( $plaintext )
 {
+
+    // Version
+    $version = 'v1';
 
     // Cipher method to CBC with 256-bit key
     $cipher = 'aes-256-cbc';
@@ -44,17 +79,18 @@ function cp_encrypt( $plaintext )
     $ciphertext = openssl_encrypt( $plaintext, $cipher, $key, 0, $iv );
     $hash = hash_hmac( 'sha256', $ciphertext, $key_hmac );
 
-    return base64_encode( $ciphertext ) . '::' . base64_encode( $hash ) . '::' . base64_encode( $iv ) . '::' . base64_encode( $salt_key ) . '::' . base64_encode( $salt_hmac );
+    return base64_encode( $version ) . '::' . base64_encode( $ciphertext ) . '::' . base64_encode( $hash ) . '::' . base64_encode( $iv ) . '::' . base64_encode( $salt_key ) . '::' . base64_encode( $salt_hmac );
 
 }
 
 /**
- * Decrypt data using AES-CBC-HMAC
+ * Version 1 - Decrypt data using AES-CBC-HMAC
  *
- * @param string $encypted - base64_encoded ciphertext, hash and iv
+ * @param string $encypted - base64_encoded version, ciphertext, hash,
+ *                         - iv, salt_key, and salt_hmac
  */
 
-function cp_decrypt( $encrypted )
+function cp_decrypt_v1( $encrypted )
 {
 
     // Return empty if $encrypted is not set or empty.
@@ -63,7 +99,8 @@ function cp_decrypt( $encrypted )
     // Cipher method to CBC with 256-bit key
     $cipher = 'aes-256-cbc';
 
-    list( $ciphertext, $hash, $iv, $salt_key, $salt_hmac ) = explode( '::', $encrypted );
+    list( $version, $ciphertext, $hash, $iv, $salt_key, $salt_hmac ) = explode( '::', $encrypted );
+    $version = base64_decode( $version );
     $ciphertext = base64_decode( $ciphertext );
     $hash = base64_decode( $hash );
     $iv = base64_decode( $iv );
@@ -82,7 +119,7 @@ function cp_decrypt( $encrypted )
         return openssl_decrypt( $ciphertext, $cipher, $key, 0, $iv );
         }
     else {
-        exit ('Please verify authenticity of ciphertext.');
+        exit ('<strong>Warning: </strong>Please verify authenticity of ciphertext.');
     }
 
 }
