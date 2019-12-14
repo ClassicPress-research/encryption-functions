@@ -16,3 +16,4 @@ echo cp_decrypt( $encrypted_name );<br />
 1. Advanced Encryption Standard (AES) - CBC Mode
 2. Keyed-Hash Message Authentication Code (HMAC) for authentication
 3. Key derivation using a passphrase
+4. Encryption versioning for backward compatibility
