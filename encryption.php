@@ -44,7 +44,7 @@ function cp_decrypt( $encrypted ) {
 
     // Version-based decryption
     switch ( $version ) {
-        case 'v1':
+        case 'enc-v1':
             return cp_decrypt_v1( $encrypted );
             break;
     }
@@ -61,25 +61,25 @@ function cp_encrypt_v1( $plaintext )
 {
 
     // Version
-    $version = 'v1';
+    $version = 'enc-v1';
 
     // Cipher method to CBC with 256-bit key
     $cipher = 'aes-256-cbc';
     // Salt for encryption key
     $salt_key = random_bytes(16);
     // Derive encryption key
-    $key = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_key, 1000, 20 );
+    $key = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_key, 10000 );
     // Salt for HMAC key
     $salt_hmac = random_bytes(16);
     // Derive HMAC key
-    $key_hmac = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_hmac, 1000, 20 );
+    $key_hmac = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_hmac, 10000 );
     // Initialization vector
     $iv = random_bytes(16);
 
     $ciphertext = openssl_encrypt( $plaintext, $cipher, $key, 0, $iv );
     $hash = hash_hmac( 'sha256', $ciphertext, $key_hmac );
 
-    return base64_encode( $version ) . '::' . base64_encode( $ciphertext ) . '::' . base64_encode( $hash ) . '::' . base64_encode( $iv ) . '::' . base64_encode( $salt_key ) . '::' . base64_encode( $salt_hmac );
+    return $version . '::' . base64_encode( $ciphertext ) . '::' . base64_encode( $hash ) . '::' . base64_encode( $iv ) . '::' . base64_encode( $salt_key ) . '::' . base64_encode( $salt_hmac );
 
 }
 
@@ -108,9 +108,9 @@ function cp_decrypt_v1( $encrypted )
     $salt_hmac = base64_decode( $salt_hmac );
 
     // Derive encryption key
-    $key = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_key, 1000, 20 );
+    $key = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_key, 10000 );
     // Derive HMAC key
-    $key_hmac = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_hmac, 1000, 20 );
+    $key_hmac = hash_pbkdf2( 'sha256', CP_PASS_PHRASE, $salt_hmac, 10000 );
     
     $digest = hash_hmac( 'sha256', $ciphertext, $key_hmac );
 
