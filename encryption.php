@@ -102,7 +102,6 @@ function cp_decrypt_v1( $encrypted )
     $cipher = 'aes-256-cbc';
 
     list( $version, $ciphertext, $hash, $iv, $salt_key, $salt_hmac ) = explode( '::', $encrypted );
-    $version = base64_decode( $version );
     $ciphertext = base64_decode( $ciphertext );
     $hash = base64_decode( $hash );
     $iv = base64_decode( $iv );
