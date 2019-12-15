@@ -47,6 +47,8 @@ function cp_decrypt( $encrypted ) {
         case 'enc-v1':
             return cp_decrypt_v1( $encrypted );
             break;
+        default:
+            return $encrypted;
     }
 
 }
