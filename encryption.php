@@ -7,6 +7,7 @@ Author: Raymund John Ang
 Author URI: https://open-nis.org/
 Text Domain: cp-encryption
 Version: 0.9
+Credits: Ang, RJ (2019) BasicPHP source code (Version 0.9.2) [Source code]. https://github.com/ray-ang/basicphp
 */
 
 /** Show warning if CP_PASS_PHRASE is not defined. */
