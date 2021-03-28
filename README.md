@@ -1,21 +1,17 @@
-## ClassicPress Encryption
-ClassicPress EXPERIMENTAL plugin: Encryption functions to encrypt and decrypt data for GDPR and privacy laws compliance.
+### ClassicPress Encryption
+ClassicPress EXPERIMENTAL plugin: Post meta fields encryption and decryption for GDPR and privacy laws compliance.
 
-### Instructions
-1. Define CP_PASS_PHRASE constant in wp-config.php file.<br />
+## Instructions
+1. Define <em>CP_PASS_PHRASE</em> constant in wp-config.php file.<br />
 Example:<br />
 define('CP_PASS_PHRASE', 'SecretPassPhrase12345');<br />
-2. Use cp_encrypt( ) function to encrypt data.<br />
-Example:<br />
-$name = 'plaintext';<br />
-add_metadata( 'post', $pid, 'name', cp_encrypt( $name ) );<br />
-3. Use cp_decrypt( ) function to decrypt data.<br />
-Example:<br />
-$encrypted_name = 'enc-v1::RVNIWlBpL2VueDAzNUFzdnJ2ZzhaQT09::MDk1Y2NkZWMzYTVjMDlmNjg3ZTk4YWE1MDk5MzI2NzNlN2FmODczZWYzYzNjOTRkYjZkNzk5MDkwM2YxYTI5MQ==::5oJ5xSt66wy2i7qI73OXsg==::3C8e5/PyEGhYDk+vgn0U7w==::kYScP8LQvpc5VBnyPTVJ8g==';<br />
-echo cp_decrypt( $encrypted_name );<br />
+2. Install and activate <em>ClassicPress Encryption</em> plugin.<br />
+3. Check the <em>Custom Fields</em> checkbox in the <em>Screen Options</em> section.<br />
+4. In the post/CPT administrative area, the <em>Encrypt</em> and <em>Decrypt</em> buttons will appear at the right-hand side of the <em>Publish</em> or <em>Update</em> buttons. Add the custom field first, then press the encrypt button to encrypt the custom field value.<br />
+5. For existing post meta fields, pressing the <em>Encrypt</em> button will encrypt the post meta fields. Pressing the <em>Decrypt</em> button will decrypt encrypted meta values, but will return the same meta value if the prefix 'encv' is not present.
 
-### Features
-1. Advanced Encryption Standard (AES) - CBC Mode with 256-bit key
-2. Keyed-Hash Message Authentication Code (HMAC) for authentication
-3. Password-Based Key Derivation using a secret passphrase
-4. Encryption versioning for backward compatibility
+## Features
+1. Advanced Encryption Standard (AES) - GCM, or CTR/CBC Mode with 256-bit key
+2. Keyed-Hash Message Authentication Code (HMAC) for authentication - SHA256
+3. Password-Based Key Derivation using a secret passphrase - SHA256 with 10,000 iterations
+4. Encryption versioning for backward compatibility - 'enc' prefix, concatenated with 'v1' for versioning
