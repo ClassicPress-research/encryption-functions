@@ -1,5 +1,6 @@
 ### ClassicPress Encryption
-ClassicPress EXPERIMENTAL plugin: Post meta fields encryption and decryption for GDPR and privacy laws compliance.
+ClassicPress EXPERIMENTAL plugin: Post meta fields encryption and decryption for GDPR and privacy laws compliance.<br />
+<strong>Note:</strong> This plugin does not work with the Gutenberg editor.
 
 ## Instructions
 1. Define <em>CP_PASS_PHRASE</em> constant in wp-config.php file.<br />
