@@ -3,9 +3,10 @@ ClassicPress EXPERIMENTAL plugin: Post meta fields encryption and decryption for
 <strong>Note:</strong> This plugin does not work with the Gutenberg editor.
 
 ## Instructions
-1. Define <em>CP_PASS_PHRASE</em> constant in wp-config.php file.<br />
+1. Define <em>CP_PASS_PHRASE</em> constant in wp-config.php file as a master key string or URL of Key-Encryption-Key API.<br />
 Example:<br />
 define('CP_PASS_PHRASE', 'SecretPassPhrase12345');<br />
+define('CP_PASS_PHRASE', 'http://localhost/api/encryption/encryption.php');<br />
 2. Install and activate <em>ClassicPress Encryption</em> plugin.<br />
 3. Check the <em>Custom Fields</em> checkbox in the <em>Screen Options</em> section.<br />
 4. In the post/CPT administrative area, the <em>Encrypt</em> and <em>Decrypt</em> buttons will appear at the right-hand side of the <em>Publish</em> or <em>Update</em> buttons. Add the custom field first, then press the encrypt button to encrypt the custom field value.<br />
