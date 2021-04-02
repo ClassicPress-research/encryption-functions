@@ -23,6 +23,21 @@ function cp_check_pass_phrase() {
         <?php
     }
 
+    if ( defined( 'CP_PASS_PHRASE' ) && is_admin() && ! wp_doing_ajax() && ( stristr($_SERVER['REQUEST_URI'], 'post.php') || stristr($_SERVER['REQUEST_URI'], 'post-new.php') ) ) {
+
+        if ( filter_var(CP_PASS_PHRASE, FILTER_VALIDATE_URL) ) {
+            $api = CP_PASS_PHRASE . '?action=encrypt';
+            $response = Basic::apiCall('POST', $api, ['key' => CP_PASS_PHRASE]);
+
+            if ($response['code'] !== 200) {
+                ?>
+                <script>alert('Warning: Invalid Key-Encryption-Key API server URL.');</script>
+                <?php
+            }
+        }
+
+    }
+
 }
 
 /**
