@@ -50,17 +50,27 @@ function cp_admin_encrypt_btn() {
     if( is_admin() && ! wp_doing_ajax() && isset($_POST['encrypt']) && $_POST['encrypt'] === 'Encrypt' && ! empty($_POST) ) {
 
         // Default WordPress custom fields
-        foreach ( $_POST['meta'] as $meta ) {
-            if ( substr( ltrim($meta['value']), 0, 4 ) !== 'encv' ) {
-                $index = array_search($meta, $_POST['meta']);
-                $_POST['meta'][$index]['value'] = Basic::encrypt($meta['value'], CP_PASS_PHRASE);
+        if ( isset($_POST['meta']) ) {
+            foreach ( $_POST['meta'] as $meta ) {
+                if ( substr( ltrim($meta['value']), 0, 4 ) !== 'encv' ) {
+                    $index = array_search($meta, $_POST['meta']);
+                    $_POST['meta'][$index]['value'] = Basic::encrypt($meta['value'], CP_PASS_PHRASE);
+                }
             }
         }
 
         // Advanced Custom Fields compatibility
-        foreach ( $_POST['acf'] as $key => $value ) {
-            if ( substr( ltrim($value), 0, 4 ) !== 'encv' ) {
-                $_POST['acf'][$key] = Basic::encrypt($value, CP_PASS_PHRASE);
+        if ( isset($_POST['acf']) ) {
+            foreach ( $_POST['acf'] as $key => $value ) {
+                if ( substr( ltrim($value), 0, 4 ) !== 'encv' ) {
+                    if ( is_array($value) ) {
+                        foreach ($value as $sub_key => $sub_value) {
+                            $_POST['acf'][$sub_key] = Basic::encrypt($sub_value, CP_PASS_PHRASE);
+                        }
+                    } else {
+                        $_POST['acf'][$key] = Basic::encrypt($value, CP_PASS_PHRASE);
+                    }
+                }
             }
         }
 
@@ -69,17 +79,27 @@ function cp_admin_encrypt_btn() {
     if( is_admin() && ! wp_doing_ajax() && isset($_POST['decrypt']) && $_POST['decrypt'] === 'Decrypt' && ! empty($_POST) ) {
 
         // Default WordPress custom fields
-        foreach ( $_POST['meta'] as $meta ) {
-            if ( substr( ltrim($meta['value']), 0, 4 ) === 'encv' ) {
-                $index = array_search($meta, $_POST['meta']);
-                $_POST['meta'][$index]['value'] = Basic::decrypt($meta['value'], CP_PASS_PHRASE);
+        if ( isset($_POST['meta']) ) {
+            foreach ( $_POST['meta'] as $meta ) {
+                if ( substr( ltrim($meta['value']), 0, 4 ) === 'encv' ) {
+                    $index = array_search($meta, $_POST['meta']);
+                    $_POST['meta'][$index]['value'] = Basic::decrypt($meta['value'], CP_PASS_PHRASE);
+                }
             }
         }
 
         // Advanced Custom Fields compatibility
-        foreach ( $_POST['acf'] as $key => $value ) {
-            if ( substr( ltrim($value), 0, 4 ) === 'encv' ) {
-                $_POST['acf'][$key] = Basic::decrypt($value, CP_PASS_PHRASE);
+        if ( isset($_POST['acf']) ) {
+            foreach ( $_POST['acf'] as $key => $value ) {
+                if ( substr( ltrim($value), 0, 4 ) === 'encv' ) {
+                    if ( is_array($value) ) {
+                        foreach ($value as $sub_key => $sub_value) {
+                            $_POST['acf'][$sub_key] = Basic::decrypt($sub_value, CP_PASS_PHRASE);
+                        }
+                    } else {
+                        $_POST['acf'][$key] = Basic::decrypt($value, CP_PASS_PHRASE);
+                    }
+                }
             }
         }
 
